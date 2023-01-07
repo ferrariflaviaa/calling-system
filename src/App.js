@@ -1,3 +1,4 @@
+import firebase from "./services/firebaseConnetion";
 function App() {
   return (
     <div><h1>teste</h1></div>
