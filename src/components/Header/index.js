@@ -1,4 +1,4 @@
-import { Container } from './styles.js'
+import { Container, Sidebar } from './styles.js'
 import { Link } from 'react-router-dom'
 import { useContext } from 'react'
 import { AuthContext } from '../../context/auth'
@@ -8,8 +8,8 @@ import { FiHome, FiUser, FiSettings } from 'react-icons/fi'
 export default function Header() {
   const { user } = useContext(AuthContext)
   return (
-    <div>
-      <div>
+    <Container>
+      <div className='side'>
         <img
           src={user.avatarUrl === null ? avatar : user.avatarUrl}
           alt="Seu avatar"
@@ -19,14 +19,14 @@ export default function Header() {
         <FiHome color="#fff" size={24} />
         Chamados
       </Link>
-      <Link to="/dashboard">
+      <Link to="/customers">
         <FiUser color="fff" size={24} />
         Clientes
       </Link>
-      <Link to="/dashboard">
+      <Link to="/profile">
         <FiSettings color="fff" size={24} />
         Configurações
       </Link>
-    </div>
+    </Container>
   )
 }
