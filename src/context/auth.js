@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext } from 'react'
-import firebase from 'firebase'
+import firebase from '../services/firebaseConnetion'
 
 export const AuthContext = createContext({})
 
@@ -21,8 +21,54 @@ function AuthProvider({ children }) {
     loadStorage()
   }, [])
 
+  const signUp = async (nome, email, password) => {
+    setLoadingAuth(true)
+    await firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(async (value) => {
+        let uid = value.user.uid
+
+        await firebase
+          .firestore()
+          .collection('users')
+          .doc(uid)
+          .set({
+            nome: nome,
+            avatarUrl: null,
+          })
+          .then(() => {
+            let data = {
+              uid: uid,
+              nome: nome,
+              email: value.user.email,
+              avatarUrl: null,
+            }
+            setUser(data)
+            storageUser(data)
+            setLoadingAuth(false)
+          })
+      })
+      .catch((error) => {
+        console.log(error)
+        setLoadingAuth(false)
+      })
+  }
+
+  const storageUser = (data) => {
+    localStorage.setItem('SistemaUser', JSON.stringify(data))
+  }
+
+  async function signOut() {
+    await firebase.auth().signOut()
+    localStorage.removeItem('SistemaUser')
+    setUser(null)
+  }
+
   return (
-    <AuthContext.Provider value={{ signed: !!user, user }}>
+    <AuthContext.Provider
+      value={{ signed: !!user, user, loading, signUp, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   )
