@@ -1,4 +1,5 @@
 import { useState, useEffect, createContext } from 'react'
+import { toast } from 'react-toastify'
 import firebase from '../services/firebaseConnetion'
 
 export const AuthContext = createContext({})
@@ -45,10 +46,12 @@ function AuthProvider({ children }) {
         }
 
         setUser(data)
+        toast.success('Bem vindo de volta!')
         storageUser(data)
         setLoadingAuth(false)
       })
       .catch((error) => {
+        toast.error('Ops algo deu errado!')
         console.log(error)
         setLoadingAuth(false)
       })
@@ -78,12 +81,14 @@ function AuthProvider({ children }) {
               email: value.user.email,
               avatarUrl: null,
             }
+            toast.success('Bem vindo a plataforma!')
             setUser(data)
             storageUser(data)
             setLoadingAuth(false)
           })
       })
       .catch((error) => {
+        toast.error('Ops algo deu errado!')
         console.log(error)
         setLoadingAuth(false)
       })
@@ -102,7 +107,15 @@ function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ signed: !!user, user, loading, signUp, signOut, signIn, loadingAuth }}
+      value={{
+        signed: !!user,
+        user,
+        loading,
+        signUp,
+        signOut,
+        signIn,
+        loadingAuth,
+      }}
     >
       {children}
     </AuthContext.Provider>
