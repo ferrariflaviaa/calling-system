@@ -21,6 +21,40 @@ function AuthProvider({ children }) {
     loadStorage()
   }, [])
 
+  //Fazendo o login do usuário
+  async function signIn(email, password) {
+    setLoadingAuth(true)
+
+    await firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(async (value) => {
+        let uid = value.user.uid
+
+        const userProfile = await firebase
+          .firestore()
+          .collection('users')
+          .doc(uid)
+          .get()
+
+        let data = {
+          uid: uid,
+          nome: userProfile.data().nome,
+          avatarUrl: userProfile.data().avatarUrl,
+          email: value.user.email,
+        }
+
+        setUser(data)
+        storageUser(data)
+        setLoadingAuth(false)
+      })
+      .catch((error) => {
+        console.log(error)
+        setLoadingAuth(false)
+      })
+  }
+
+  //Cadastrando um novo usuário.
   const signUp = async (nome, email, password) => {
     setLoadingAuth(true)
     await firebase
@@ -59,6 +93,7 @@ function AuthProvider({ children }) {
     localStorage.setItem('SistemaUser', JSON.stringify(data))
   }
 
+  //Fazer logout no usuário
   async function signOut() {
     await firebase.auth().signOut()
     localStorage.removeItem('SistemaUser')
@@ -67,7 +102,7 @@ function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ signed: !!user, user, loading, signUp, signOut }}
+      value={{ signed: !!user, user, loading, signUp, signOut, signIn, loadingAuth }}
     >
       {children}
     </AuthContext.Provider>
