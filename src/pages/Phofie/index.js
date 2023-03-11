@@ -7,10 +7,28 @@ import { AuthContext } from '../../context/auth'
 import { useContext } from 'react'
 import { useState } from 'react'
 import { Container } from './styles'
+import { toast } from 'react-toastify'
 
 export default function Profile() {
-  const { user } = useContext(AuthContext)
+  const { user, storageUser, setUser, signOut } = useContext(AuthContext)
   const [avatarUrl, setAvatarUrl] = useState(user && user.avatarUrl)
+  const [imageAvatar, setImageAvatar] = useState(null)
+  const [nome, setNome] = useState(user && user.nome)
+  const [email, setEmail] = useState(user && user.email)
+
+  function handleFile(event) {
+    if (event.target.files[0]) {
+      const image = event.target.files[0]
+      if (image.type === 'image/jpeg' || image.type === 'image/png') {
+        setImageAvatar(image)
+        setAvatarUrl(URL.createObjectURL(event.target.files[0]))
+      } else {
+        toast.warning('Envie uma imagem do tipo PNG ou JPEG')
+        setImageAvatar(null)
+      }
+    }
+  }
+
   return (
     <div>
       <Header />
@@ -24,7 +42,8 @@ export default function Profile() {
               <span>
                 <FiUpload color="#FFF" size={25} />
               </span>
-              <input type="file" accept="image/*" /> <br />
+              <input type="file" accept="image/*" onChange={handleFile} />{' '}
+              <br />
               {avatarUrl === null ? (
                 <img
                   src={avatar}
@@ -42,15 +61,23 @@ export default function Profile() {
               )}
             </label>
             <label>Nome:</label>
-            <input type="text" placeholder="Seu nome" />
+            <input
+              type="text"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+            />
             <label>Email:</label>
-            <input type="email" placeholder="test@teste.com" disabled />
+            <input type="email" value={email} disabled />
 
-            <button className='btn' type="submit">Salvar</button>
+            <button className="btn" type="submit">
+              Salvar
+            </button>
           </form>
         </Container>
         <Container>
-          <button className="logout-btn">Sair</button>
+          <button className="logout-btn" onClick={() => signOut()}>
+            Sair
+          </button>
         </Container>
       </div>
     </div>
