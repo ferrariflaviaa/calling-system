@@ -8,10 +8,8 @@ export const Container = styled.div`
   background-color: #181c2e;
   margin: 0;
   padding: 0;
-
-  .side div {
-    background-image: url('../../assets/cover.png');
-    background-color: #181c2e;
+  
+  .side {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -19,7 +17,7 @@ export const Container = styled.div`
     height: 170px;
     background-size: cover;
   }
-  .side img {
+  img {
     border-radius: 50%;
     display: block;
     margin: auto;
@@ -50,17 +48,18 @@ export const Container = styled.div`
     margin-right: 0.5em;
   }
 
-  @media (max-width: 700px) {
+  @media screen and (max-width: 700px) {
     width: 100%;
     height: auto;
     position: relative;
 
-    a {
-      float: left;
-    }
-    div {
-      margin-left: 0;
+    .side {
       display: none;
+    }
+
+    a {
+      font-size: 1rem;
+      float: left;
     }
 
     a svg {
@@ -68,10 +67,12 @@ export const Container = styled.div`
     }
   }
 
-  @media screen and (max-width: 400px) {
+  @media screen and (max-width: 290px) {
+    width: 100%;
+    height: auto;
+    position: relative;
     a {
-      text-align: center;
-      float: none;
+      font-size: 0.7rem;
     }
 
     a svg {

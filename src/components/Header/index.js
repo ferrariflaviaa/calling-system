@@ -3,14 +3,15 @@ import { Link } from 'react-router-dom'
 import { useContext } from 'react'
 import { AuthContext } from '../../context/auth'
 import avatar from '../../assets/avatar.png'
+import cover from '../../assets/cover.png'
 import { FiHome, FiUser, FiSettings } from 'react-icons/fi'
 
 export default function Header() {
   const { user } = useContext(AuthContext)
   return (
     <Container>
-      <div className='side'>
-        <img
+      <div className='side' style={{ backgroundImage: `url(${cover})` }}>
+        <img 
           src={user.avatarUrl === null ? avatar : user.avatarUrl}
           alt="Seu avatar"
         />
