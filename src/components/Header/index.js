@@ -1,4 +1,4 @@
-import { Container, Sidebar } from './styles.js'
+import { Container } from './styles.js'
 import { Link } from 'react-router-dom'
 import { useContext } from 'react'
 import { AuthContext } from '../../context/auth'
@@ -26,7 +26,7 @@ export default function Header() {
       </Link>
       <Link to="/profile">
         <FiSettings color="fff" size={24} />
-        Configurações
+        Perfil
       </Link>
     </Container>
   )
