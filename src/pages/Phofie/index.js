@@ -8,7 +8,7 @@ import { useContext } from 'react'
 import { useState } from 'react'
 import { Container } from './styles'
 import { toast } from 'react-toastify'
-
+import Firebase from '../../services/firebaseConnetion'
 export default function Profile() {
   const { user, storageUser, setUser, signOut } = useContext(AuthContext)
   const [avatarUrl, setAvatarUrl] = useState(user && user.avatarUrl)
@@ -21,11 +21,72 @@ export default function Profile() {
       const image = event.target.files[0]
       if (image.type === 'image/jpeg' || image.type === 'image/png') {
         setImageAvatar(image)
+        console.log(image)
         setAvatarUrl(URL.createObjectURL(event.target.files[0]))
       } else {
         toast.warning('Envie uma imagem do tipo PNG ou JPEG')
         setImageAvatar(null)
       }
+    }
+  }
+
+  async function handleUpload() {
+    try {
+      const uid = user.uid
+      await Firebase.storage()
+        .ref(`images/${uid}/${imageAvatar.name}`)
+        .put(imageAvatar)
+
+      const url = await Firebase.storage()
+      .ref(`images/${uid}`)
+      .child(imageAvatar.name)
+      .getDownloadURL();
+
+      await Firebase.firestore().collection('users').doc(user.uid).update({
+        avatarUrl: url,
+        nome,
+      })
+      let data = {
+        ...user,
+        avatarUrl: url,
+        nome,
+      }
+      setUser(data)
+      storageUser(data)
+      toast.success('Dados atualizados com sucesso!')
+    } catch (error) {
+      console.log(error)
+      toast.error('Erro no sistema ')
+    }
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+
+    if (imageAvatar === null && nome !== '') {
+      //Atualizar apenas o nome do user
+
+      await Firebase.firestore()
+        .collection('users')
+        .doc(user.uid)
+        .update({
+          nome: nome,
+        })
+        .then(() => {
+          let data = {
+            ...user,
+            nome: nome,
+          }
+          setUser(data)
+          storageUser(data)
+          toast.success('Nome editado com sucesso')
+        })
+        .catch(() => {
+          toast.error('Erro ao editar nome!!')
+        })
+    } else if (nome !== '' && imageAvatar !== null) {
+      //Atualizar tanto nome quanto a foto
+      handleUpload()
     }
   }
 
@@ -37,12 +98,12 @@ export default function Profile() {
           <FiSettings size={25} />
         </Title>
         <Container>
-          <form>
+          <form onSubmit={handleSubmit}>
             <label className="label-avatar">
               <span>
                 <FiUpload color="#FFF" size={25} />
               </span>
-              <input type="file" accept="image/*" onChange={handleFile} />{' '}
+              <input type="file" accept="image/*" onChange={handleFile} />
               <br />
               {avatarUrl === null ? (
                 <img
