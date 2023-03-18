@@ -4,16 +4,37 @@ import '../../index.css'
 import { FiUser } from 'react-icons/fi'
 import { useState } from 'react'
 import { Container } from './styles'
+import Firebase from '../../services/firebaseConnetion'
+import { toast } from 'react-toastify'
 
 export default function Customers() {
-  const [nome, setNome] = useState()
+  const [nomeFantasia, setnomeFantasia] = useState()
   const [cnpj, setCnpj] = useState()
   const [endereco, setEndereco] = useState()
 
-  function handleRegister(e) {
+  async function handleRegister(e) {
     e.preventDefault()
 
-    alert('teste')
+    if (nomeFantasia !== '' && cnpj !== '' && endereco !== '') {
+      await Firebase.firestore()
+        .collection('Customers')
+        .add({
+          nomeFantasia: nomeFantasia,
+          cnpj: cnpj,
+          endereco: endereco,
+        })
+        .then(() => {
+          toast.success('Cliente cadastrado com sucesso')
+          setnomeFantasia('')
+          setCnpj('')
+          setEndereco('')
+        })
+        .catch(() => {
+          toast.error('Erro ao cadastrar cliente!')
+        })
+    } else {
+      toast.warning('Preencha os dados')
+    }
   }
   return (
     <div>
@@ -27,9 +48,9 @@ export default function Customers() {
             <label>Nome fantasia</label>
             <input
               type="text"
-              placeholder="Nome da empresa"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
+              placeholder="Nome fantasia"
+              value={nomeFantasia}
+              onChange={(e) => setnomeFantasia(e.target.value)}
             />
             <label>CNPJ</label>
             <input
