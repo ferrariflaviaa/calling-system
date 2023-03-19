@@ -74,6 +74,8 @@ export default function New() {
       .then(() => {
         setComplemento('')
         setCustomerSelected(0)
+        setAssunto('Suporte')
+        setStatus("")
         toast.success('Chamado cadastrado com sucesso!')
       })
       .catch(() => {

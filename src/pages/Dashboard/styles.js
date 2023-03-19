@@ -23,6 +23,42 @@ export const New = styled.div`
     transform: scale(1.1);
   }
 `
+
+export const CustomDashboard = styled.div`
+  margin-top: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  span {
+    font-size: 1.5em;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  a {
+    width: 250px;
+    margin-bottom: 1.6em;
+    background-color: #83bf02;
+    padding: 0.6em;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 0;
+    font-weight: 600;
+    color: #fff;
+    transition: ease-in-out 0.3s;
+    svg {
+      margin-right: 6px;
+    }
+  }
+  a:hover {
+    background-color: #5fd204;
+    transform: scale(1.1);
+  }
+`
+
 export const Container = styled.div`
   display: flex;
   justify-content: center;
@@ -109,7 +145,7 @@ export const TableDashboard = styled.table`
       font-size: 0.8em;
       text-align: right;
     }
-     td::before{
+    td::before {
       content: attr(data-label);
       float: left;
       font-weight: bold;
