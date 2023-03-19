@@ -4,7 +4,7 @@ import Header from '../../components/Header'
 import Title from '../../components/Title'
 import '../../index.css'
 import { FiPlus, FiMessageSquare, FiSearch, FiEdit2 } from 'react-icons/fi'
-import { Container, New, TableDashboard } from './styles'
+import { New, TableDashboard } from './styles'
 import { Link } from 'react-router-dom'
 
 export default function Dashboard() {
@@ -17,7 +17,7 @@ export default function Dashboard() {
         </Title>
         <>
           <New>
-            <Link className="new">
+            <Link to='/new' className="new">
               <FiPlus color="#FFF" size={25} />
               Novo chamado
             </Link>
