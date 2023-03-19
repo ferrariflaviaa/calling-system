@@ -1,19 +1,72 @@
+import '../../index.css'
 import Header from './../../components/Header'
 import Title from './../../components/Title'
-import '../../index.css'
 import { FiPlusCircle } from 'react-icons/fi'
 import { Container } from './styles'
 import { useState } from 'react'
+import { useEffect } from 'react'
+import { AuthContext } from '../../context/auth'
+import { useContext } from 'react'
+import Firebase from '../../services/firebaseConnetion'
+import { useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
+
 export default function New() {
+  const { user } = useContext(AuthContext)
+  const { id } = useParams()
   const [customers, setCustomers] = useState([])
+  const [loadCustomer, setLoadCustomer] = useState(true)
   const [complemento, setComplemento] = useState('')
   const [assunto, setAssunto] = useState('Suporte')
   const [status, setStatus] = useState('')
+  const [customerSelected, setCustomerSelected] = useState(0)
 
   function handleOptionChange(e) {
     setStatus(e.target.value)
-
   }
+  function handleChangeSelect(e) {
+    setAssunto(e.target.value)
+  }
+
+  function handleCustomerSelected(e){
+    setCustomerSelected(e.target.value)
+  }
+
+  useEffect(() => {
+    const loadCustomer = async () => {
+      await Firebase.firestore()
+        .collection('Customers')
+        .get()
+        .then((res) => {
+          console.log(res.docs)
+          let lista = []
+
+          res.forEach((customers) => {
+            lista.push({
+              id: customers.id,
+              nomeFantasia: customers.data().nomeFantasia,
+            })
+          })
+          if (lista.length === 0) {
+            setLoadCustomer(false)
+            setCustomers([{ id: '1', nomeFantasia: 'Freela' }])
+            return
+          }
+          setCustomers(lista)
+          setLoadCustomer(false)
+          if (id) {
+            // loadId(lista)
+          }
+        })
+        .catch(() => {
+          setLoadCustomer(false)
+          setCustomers([{ id: '1', nomeFantasia: '' }])
+          toast.error('Erro ao carregar os dados')
+        })
+    }
+    loadCustomer()
+  }, [])
+
   return (
     <div>
       <Header />
@@ -24,17 +77,22 @@ export default function New() {
         <Container>
           <form>
             <label>Clientes</label>
-            <select>
-              <option key={1} value={1}>
-                Mercado teste
-              </option>
-              <option key={2} value={2}>
-                Mercado teste
-              </option>
-            </select>
+            {customers.length === 0 ? (
+              <input type="text" disabled={true} value="Carregando clientes" />
+            ) : (
+              <select value={customerSelected} onChange={handleCustomerSelected}>
+                {customers.map((item, index) => {
+                  return (
+                    <option key={item.id} value={index}>
+                      {item.nomeFantasia}
+                    </option>
+                  )
+                })}
+              </select>
+            )}
 
             <label>Assunto</label>
-            <select>
+            <select value={assunto} onChange={handleChangeSelect}>
               <option value="Suporte">Suporte</option>
               <option value="Visita Tecnica">Visita Tecnica</option>
               <option value="Financeiro">Financeiro</option>
