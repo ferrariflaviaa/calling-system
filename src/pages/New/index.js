@@ -8,7 +8,7 @@ import { useEffect } from 'react'
 import { AuthContext } from '../../context/auth'
 import { useContext } from 'react'
 import Firebase from '../../services/firebaseConnetion'
-import { useParams } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 export default function New() {
@@ -20,6 +20,8 @@ export default function New() {
   const [assunto, setAssunto] = useState('Suporte')
   const [status, setStatus] = useState('')
   const [customerSelected, setCustomerSelected] = useState(0)
+  const [selectCustom, setSelectCustom] = useState(false)
+  const history = useHistory()
 
   function handleOptionChange(e) {
     setStatus(e.target.value)
@@ -28,8 +30,55 @@ export default function New() {
     setAssunto(e.target.value)
   }
 
-  function handleCustomerSelected(e){
+  function handleCustomerSelected(e) {
     setCustomerSelected(e.target.value)
+  }
+
+  async function handleRegister(e) {
+    e.preventDefault()
+
+    if (selectCustom) {
+      await Firebase.firestore()
+        .collection('Chamados')
+        .doc(id)
+        .update({
+          customer: customers[customerSelected].nomeFantasia,
+          customer_id: customers[customerSelected].id,
+          subject: assunto,
+          status: status,
+          complement: complemento,
+          user_id: user.uid,
+        })
+        .then(() => {
+          toast.success('Chamado editado com sucesso!')
+          setComplemento('')
+          setCustomerSelected(0)
+          history.push('/dashboard')
+        })
+        .catch(() => {
+          toast.error('Houve um erro ao editar!')
+        })
+      return
+    }
+    Firebase.firestore()
+      .collection('Chamados')
+      .add({
+        created_at: new Date(),
+        customer: customers[customerSelected].nomeFantasia,
+        customer_id: customers[customerSelected].id,
+        subject: assunto,
+        status: status,
+        complement: complemento,
+        user_id: user.uid,
+      })
+      .then(() => {
+        setComplemento('')
+        setCustomerSelected(0)
+        toast.success('Chamado cadastrado com sucesso!')
+      })
+      .catch(() => {
+        toast.error('Houve um erro ao cadastrar!')
+      })
   }
 
   useEffect(() => {
@@ -75,12 +124,15 @@ export default function New() {
           <FiPlusCircle size={25} />
         </Title>
         <Container>
-          <form>
+          <form onSubmit={handleRegister}>
             <label>Clientes</label>
             {customers.length === 0 ? (
               <input type="text" disabled={true} value="Carregando clientes" />
             ) : (
-              <select value={customerSelected} onChange={handleCustomerSelected}>
+              <select
+                value={customerSelected}
+                onChange={handleCustomerSelected}
+              >
                 {customers.map((item, index) => {
                   return (
                     <option key={item.id} value={index}>
