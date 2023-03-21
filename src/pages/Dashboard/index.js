@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { AuthContext } from '../../context/auth'
+import { format } from 'date-fns'
 import Header from '../../components/Header'
 import Title from '../../components/Title'
 import '../../index.css'
@@ -15,6 +15,7 @@ export default function Dashboard() {
   const [lastDocs, setLastDocs] = useState()
   const [loadingMore, setLoadingMore] = useState(false)
   const [isEmpty, setIsEmpty] = useState(false)
+
   const listREF = Firebase.firestore()
     .collection('Chamados')
     .orderBy('created_at', 'desc')
@@ -25,12 +26,14 @@ export default function Dashboard() {
         .limit(5)
         .get()
         .then((res) => {
+          setChamados([])
           updateState(res)
           setLoadingMore(false)
         })
         .catch((error) => {
           console.log(`error ${error}`)
         })
+        setLoading(false);
     }
     loadChamados()
   })
@@ -46,7 +49,6 @@ export default function Dashboard() {
           cliente: item.data().customer,
           clienteId: item.data().customer_id,
           created: item.data().created_at,
-          // eslint-disable-next-line no-undef
           createdFormated: format(
             item.data().created_at.toDate(),
             'dd/MM/yyyy',
@@ -62,6 +64,22 @@ export default function Dashboard() {
       setIsEmpty(true)
     }
     setLoadingMore(false)
+  }
+
+  if(loading){
+    return(
+      <div>
+        <Header/>
+        <div className='content'>
+          <Title name={'Tickets'}>
+            <FiMessageSquare size={25}/>
+          </Title>
+          <CustomDashboard>
+            <span>Buscando chamados ...</span>
+          </CustomDashboard>
+        </div>
+      </div>
+    )
   }
   return (
     <div>
@@ -98,33 +116,77 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td data-label="Cliente">Marcado Esquina</td>
-                      <td data-label="Assunto">Suporte</td>
-                      <td data-label="Status">
-                        <span
-                          className="badge"
-                          style={{ backgroundColor: '#999' }}
-                        >
-                          Em Aberto
-                        </span>
-                      </td>
-                      <td data-label="Cadastrado">18/03/23</td>
-                      <td data-label="#">
-                        <button
-                          className="action"
-                          style={{ backgroundColor: '#3583f6' }}
-                        >
-                          <FiSearch color="#FFF" size={20} />
-                        </button>
-                        <button
-                          className="action"
-                          style={{ backgroundColor: '#f6a935' }}
-                        >
-                          <FiEdit2 color="#FFF" size={20} />
-                        </button>
-                      </td>
-                    </tr>
+                    {chamados.map((item, index) => {
+                      return (
+                        <tr key={index}>
+                          <td data-label="Cliente">{item.cliente}</td>
+                          <td data-label="Assunto">{item.assunto}</td>
+                          <td data-label="Status">
+                            <span
+                              className="badge"
+                              style={{
+                                backgroundColor:
+                                  item.status === 'Aberto' ? '#5cb85c' : '#999',
+                              }}
+                            >
+                              {item.status}
+                            </span>
+                          </td>
+                          <td data-label="Cadastrado">
+                            {item.createdFormated}
+                          </td>
+                          <td data-label="#">
+                            <button
+                              className="action"
+                              style={{ backgroundColor: '#3583f6' }}
+                              onClick={() => null}
+                            >
+                              <FiSearch color="#FFF" size={17} />
+                            </button>
+                            <Link
+                              className="action"
+                              style={{ backgroundColor: '#F6a935' }}
+                              to={`/new/${item.id}`}
+                            >
+                              <FiEdit2 color="#FFF" size={17} />
+                            </Link>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                    {/* {chamados.map((item, index) => {
+                      return (
+                        <tr key={index}>
+                          <td data-label="Cliente">{item.cliente}</td>
+                          <td data-label="Assunto">{item.assunto}</td>
+                          <td data-label="Status">
+                            <span
+                              className="badge"
+                              style={{ backgroundColor: '#999' }}
+                            >
+                              Em Aberto
+                            </span>
+                          </td>
+                          <td data-label="Cadastrado">
+                            {item.createdFormated}
+                          </td>
+                          <td data-label="#">
+                            <button
+                              className="action"
+                              style={{ backgroundColor: '#3583f6' }}
+                            >
+                              <FiSearch color="#FFF" size={20} />
+                            </button>
+                            <button
+                              className="action"
+                              style={{ backgroundColor: '#f6a935' }}
+                            >
+                              <FiEdit2 color="#FFF" size={20} />
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })} */}
                   </tbody>
                 </TableDashboard>
               </New>
