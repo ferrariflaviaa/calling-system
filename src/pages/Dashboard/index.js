@@ -1,10 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useContext, useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import Header from '../../components/Header'
 import Title from '../../components/Title'
 import '../../index.css'
 import { FiPlus, FiMessageSquare, FiSearch, FiEdit2 } from 'react-icons/fi'
-import { CustomDashboard, New, TableDashboard } from './styles'
+import { BtnMore, CustomDashboard, New, TableDashboard } from './styles'
 import { Link } from 'react-router-dom'
 
 import Firebase from './../../services/firebaseConnetion'
@@ -33,10 +34,10 @@ export default function Dashboard() {
         .catch((error) => {
           console.log(`error ${error}`)
         })
-        setLoading(false);
+      setLoading(false)
     }
     loadChamados()
-  })
+  }, [])
 
   async function updateState(res) {
     const isCollectionEmpty = res.size === 0
@@ -66,13 +67,24 @@ export default function Dashboard() {
     setLoadingMore(false)
   }
 
-  if(loading){
-    return(
+  const handleMore = async () => {
+    setLoadingMore(true)
+    await listREF
+      .startAfter(lastDocs)
+      .limit(5)
+      .get()
+      .then((snapshot) => {
+        updateState(snapshot)
+      })
+  }
+
+  if (loading) {
+    return (
       <div>
-        <Header/>
-        <div className='content'>
+        <Header />
+        <div className="content">
           <Title name={'Tickets'}>
-            <FiMessageSquare size={25}/>
+            <FiMessageSquare size={25} />
           </Title>
           <CustomDashboard>
             <span>Buscando chamados ...</span>
@@ -154,41 +166,12 @@ export default function Dashboard() {
                         </tr>
                       )
                     })}
-                    {/* {chamados.map((item, index) => {
-                      return (
-                        <tr key={index}>
-                          <td data-label="Cliente">{item.cliente}</td>
-                          <td data-label="Assunto">{item.assunto}</td>
-                          <td data-label="Status">
-                            <span
-                              className="badge"
-                              style={{ backgroundColor: '#999' }}
-                            >
-                              Em Aberto
-                            </span>
-                          </td>
-                          <td data-label="Cadastrado">
-                            {item.createdFormated}
-                          </td>
-                          <td data-label="#">
-                            <button
-                              className="action"
-                              style={{ backgroundColor: '#3583f6' }}
-                            >
-                              <FiSearch color="#FFF" size={20} />
-                            </button>
-                            <button
-                              className="action"
-                              style={{ backgroundColor: '#f6a935' }}
-                            >
-                              <FiEdit2 color="#FFF" size={20} />
-                            </button>
-                          </td>
-                        </tr>
-                      )
-                    })} */}
                   </tbody>
                 </TableDashboard>
+                {loadingMore && <h3>Buscando mais chamados....</h3>}
+                {!loadingMore && !isEmpty && (
+                  <BtnMore onClick={handleMore}>Bucasr mais</BtnMore>
+                )}
               </New>
             </>
           )}
