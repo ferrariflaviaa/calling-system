@@ -14,6 +14,7 @@ import { toast } from 'react-toastify'
 export default function New() {
   const { user } = useContext(AuthContext)
   const { id } = useParams()
+  const history = useHistory()
   const [customers, setCustomers] = useState([])
   const [loadCustomer, setLoadCustomer] = useState(true)
   const [complemento, setComplemento] = useState('')
@@ -21,7 +22,6 @@ export default function New() {
   const [status, setStatus] = useState('')
   const [customerSelected, setCustomerSelected] = useState(0)
   const [selectCustom, setSelectCustom] = useState(false)
-  const history = useHistory()
 
   function handleOptionChange(e) {
     setStatus(e.target.value)
@@ -37,6 +37,7 @@ export default function New() {
   async function handleRegister(e) {
     e.preventDefault()
 
+    //ATUALIZANDO  CHAMADO
     if (selectCustom) {
       await Firebase.firestore()
         .collection('Chamados')
@@ -60,6 +61,8 @@ export default function New() {
         })
       return
     }
+
+    //NOVO CHAMADO
     Firebase.firestore()
       .collection('Chamados')
       .add({
@@ -75,12 +78,26 @@ export default function New() {
         setComplemento('')
         setCustomerSelected(0)
         setAssunto('Suporte')
-        setStatus("")
+        setStatus('')
         toast.success('Chamado cadastrado com sucesso!')
       })
       .catch(() => {
         toast.error('Houve um erro ao cadastrar!')
       })
+  }
+
+  const loadId = async(lista) => {
+    await Firebase.firestore().collection("Chamados").doc(id)
+    .get()
+    .then((res)=> {
+      setAssunto(res.data().subject)
+      setStatus(res.data().status)
+      setComplemento(res.data().complement)
+
+      let index = lista.findIndex(item => item.id === res.data().customer_id)
+      setCustomerSelected(index)
+      setSelectCustom(true)
+    })
   }
 
   useEffect(() => {
@@ -106,7 +123,7 @@ export default function New() {
           setCustomers(lista)
           setLoadCustomer(false)
           if (id) {
-            // loadId(lista)
+            loadId(lista)
           }
         })
         .catch(() => {
@@ -122,7 +139,7 @@ export default function New() {
     <div>
       <Header />
       <div className="content">
-        <Title name="Novo chamado">
+        <Title name={id ? "Editando chamdo" : "Novo chamado"}>
           <FiPlusCircle size={25} />
         </Title>
         <Container>
