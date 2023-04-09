@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useContext, useEffect, useState } from 'react'
+import {  useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import Header from '../../components/Header'
 import Title from '../../components/Title'
@@ -9,6 +9,7 @@ import { BtnMore, CustomDashboard, New, TableDashboard } from './styles'
 import { Link } from 'react-router-dom'
 
 import Firebase from './../../services/firebaseConnetion'
+import Modal from '../../components/Modal'
 
 export default function Dashboard() {
   const [chamados, setChamados] = useState([])
@@ -16,6 +17,8 @@ export default function Dashboard() {
   const [lastDocs, setLastDocs] = useState()
   const [loadingMore, setLoadingMore] = useState(false)
   const [isEmpty, setIsEmpty] = useState(false)
+  const [ showPostModal, setShoePostModal ] = useState(false);
+  const [ details, setDetails ] = useState();
 
   const listREF = Firebase.firestore()
     .collection('Chamados')
@@ -67,17 +70,23 @@ export default function Dashboard() {
     setLoadingMore(false)
   }
 
+  
   const handleMore = async () => {
     setLoadingMore(true)
     await listREF
-      .startAfter(lastDocs)
-      .limit(5)
-      .get()
-      .then((snapshot) => {
-        updateState(snapshot)
-      })
+    .startAfter(lastDocs)
+    .limit(5)
+    .get()
+    .then((snapshot) => {
+      updateState(snapshot)
+    })
   }
-
+  
+  const loadList = (item) => {
+    setShoePostModal(!showPostModal)
+    setDetails(item)
+  }
+  
   if (loading) {
     return (
       <div>
@@ -151,7 +160,7 @@ export default function Dashboard() {
                             <button
                               className="action"
                               style={{ backgroundColor: '#3583f6' }}
-                              onClick={() => null}
+                              onClick={() =>  loadList(item)}
                             >
                               <FiSearch color="#FFF" size={17} />
                             </button>
@@ -177,6 +186,9 @@ export default function Dashboard() {
           )}
         </>
       </div>
+      {showPostModal && (
+        <Modal conteudo={details} close={loadList}/>
+      )}
     </div>
   )
 }
